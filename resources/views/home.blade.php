@@ -58,6 +58,11 @@
                 <h5 class="p-2 card-header bg-primary text-white"><b>Product List</b></h5>
             </div>
             <div class="card-body">
+                {{-- <div class="d-flex justify-content-end">
+                    <label for="view-products-table">
+                            <button id="delete-selected-btn" type="button" class="btn btn-md btn-danger">Delete Selected</button>
+                    </label>
+                </div> --}}
                 <div class="table-responsive">
                     <table id="view-products-table" class="table">
                         <thead>
@@ -68,6 +73,11 @@
                             <th>Status</th>
                             <th>Image</th>
                             <th>Actions</th>
+                            {{-- <th>
+                                <input type="checkbox" name="selectAll" id="example-select-all">
+                                &nbsp;
+                                <label for="example-select-all">Select All</label>
+                            </th> --}}
                         </thead>
                         <tbody>
                             @if ($products->isNotEmpty())
@@ -93,11 +103,19 @@
                                                 </button>
                                             </div>
                                         </td>
+                                        {{-- <td>
+                                            <fieldset> 
+                                                <div class="custom-control custom-checkbox">
+                                                    <span class="custom-control-indicator"></span><input type="checkbox" class="custom-control-input customCheck" name="customCheck" id="{{ 'customCheck' .$product->id }}" value="{{ $product->id }}">
+                                                    <label class="custom-control-label" for="{{ 'customCheck' .$product->id }}"></label>
+                                                </div>
+                                            </fieldset>
+                                        </td> --}}
                                     </tr>
                                 @endforeach
                             @else
                                 <tr>
-                                    <td class="text-center" colspan="7"><strong class="text-danger"><h3>No Products Found</h3></strong></td>
+                                    <td class="text-center" colspan="8"><strong class="text-danger"><h3>No Products Found</h3></strong></td>
                                 </tr>
                             @endif
                         </tbody>
@@ -109,6 +127,7 @@
                             <th>Status</th>
                             <th>Image</th>
                             <th>Actions</th>
+                            {{-- <th>#</th> --}}
                         </tfoot>
                     </table>
                 </div>
@@ -123,7 +142,7 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">Update Product</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -147,7 +166,9 @@
 @section('js')
     <script>
         $(document).ready(function(){
+            // $('#view-products-table').DataTable();
 
+            //Validations for adding product
             $('#product_name').on('change', function(){
                 let product = this.value;
                 $('#product_name_error').html('');
@@ -199,6 +220,7 @@
                 }
             });
 
+            //Add product
             $('#product-submit-form').on('submit', function(event)
             {
                 event.preventDefault();  
@@ -229,6 +251,7 @@
                 });       
             });
 
+            //Delete Single Product
             $('#view-products-table').on('click', '.delete-product-btn', function (event) {
                 event.preventDefault();
                 let text = "Delete this Product?";
@@ -259,6 +282,85 @@
                 } 
             });
 
+            //Multiple Deletion
+            let productIds = [];
+            $('#example-select-all').on('click', function() {
+                var isSelectAllChecked =  $(this).is(':checked');
+                $('#view-products-table').find('tr').each(function() {
+                    var row = $(this);
+                    var id = row.find('input[type="checkbox"]').val();
+                    console.log("Checkbox Id :" + id);
+                    row.find('input[type="checkbox"]').prop('checked', isSelectAllChecked);
+                });
+            });
+
+            $('#delete-selected-btn').on('click', function(event){
+                event.preventDefault();
+                let text = "Delete selected Product?";
+                if (confirm(text) == true) {
+                    // var cells = $('#view-products-table').column(7).nodes();
+
+                    // for (var i = 0; i < cells.length; i += 1) {
+                    //     if (cells[i].querySelector("input[type='checkbox']").checked) {
+                    //         productIds.push(cells[i].querySelector("input[type='checkbox']").value);
+                    //     }
+                    // }
+
+                    var table = document.getElementById("view-products-table");
+                    for (var i = 0, row; row = table.rows[i]; i++) {
+                        //iterate through rows
+                        //rows would be accessed using the "row" variable assigned in the for loop
+                        for (var j = 0, col; col = row.cells[j]; j++) {
+                            let checkBox = col.innerHTML;
+                            console.log(checkBox);
+                        }  
+                    }
+
+                    
+                    // var productIdsJson = JSON.stringify(productIds);
+
+                    // console.log('productIdswith js array ' + productIdsJson);
+
+                    // let url = "{{ route('destroyMultiple', ":getid") }}";
+                    // url = url.replace(':getid', productIdsJson );
+
+                    // $.ajax({
+                    //     url: url,
+                    //     method: "GET",
+                    //     success: function(data) {
+                    //         if (data.status == "success") {
+                    //             $('#example-select-all').prop('checked', false); 
+                    //             productIds = [];
+                    //             swal("Success", "Products Deleted Successfully!", "success");
+                    //             location.reload();
+                    //         } else {
+                    //             // alert(data.response);
+                    //             swal("Error", data.response, "error");
+                    //             location.reload();
+                    //         }
+                    //     },
+                    //     error: function(e) {
+                    //         alert(e.error);
+                    //     }
+                    // });
+                }
+            });
+
+            // Handle click on checkbox to set state of "Select all" control
+            $('#view-products-table tbody').on('change', 'input[type="checkbox"]', function() {
+                // If checkbox is not checked
+                if (!this.checked) {
+                    var el = $('#example-select-all').get(0);
+                    // If "Select all" control is checked and has 'indeterminate' property
+                    if (el && el.checked && ('indeterminate' in el)) {
+                        // Set visual state of "Select all" control
+                        // as 'indeterminate'
+                        el.indeterminate = true;
+                    }
+                }
+            });
+
+            //Edit Product
             $('#view-products-table').on('click', '.edit-product-btn', function (event) {
                 $('#dynamic-div').html('');
                 $('#product_id').val('');
@@ -287,6 +389,7 @@
                 });
             });
 
+            //Update Product
             $('#product-update-form').on('submit', function(event){
                 event.preventDefault();
                 let id = $('#product_id').val();

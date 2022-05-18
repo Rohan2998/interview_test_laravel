@@ -210,6 +210,35 @@ class HomeController extends Controller
         }
     }
 
+
+    /**
+     * Destroy Multiple Products
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroyMultiple($ids)
+    {
+        try {
+
+            $productIds = \json_decode($ids, true); 
+
+            foreach ($productIds as $key => $productId) {
+                DB::table('products')->where('id', $productId)->delete();
+            }
+
+            return response()->json([
+                'status'   => "success",
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'    => "error",
+                'response'  => $e->getMessage()
+            ]);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      *

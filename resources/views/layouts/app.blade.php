@@ -18,6 +18,8 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.0/css/jquery.dataTables.min.css">
 </head>
 <body>
     <div id="app">
@@ -78,6 +80,7 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    {{-- <script src="https://cdn.datatables.net/1.12.0/js/jquery.dataTables.min.js"></script> --}}
     @yield('js')
 </body>
 </html>
