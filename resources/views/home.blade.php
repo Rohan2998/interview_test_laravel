@@ -85,10 +85,12 @@
                                         </td>
                                         <td>
                                             <div class="d-flex">
-                                                <button href="#' +
-                                                data.id + '" target="_" id="' +
-                                                data.id + '" class="edit-flash-btn approve-button mr-1"><i class="fa fa-check-square-o" style="margin-right: 5px;"></i>Edit</button><button target="_" id="' +
-                                                data.id + '" class="delete-flash-btn disapprove-button"><i class="fa fa-close" style="margin-right: 5px;"></i>Delete</button>
+                                                <button id="{{ $product->id }}" class="edit-product-btn btn btn-md btn-primary mr-1">
+                                                    Edit
+                                                </button>
+                                                <button id="{{ $product->id }}" class="delete-product-btn btn btn-md btn-danger">
+                                                    Delete
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -114,6 +116,32 @@
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="edit-product-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Modal Header</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="product-update-form" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="product_id" id="product_id">
+                    <div id="dynamic-div">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @endsection
 
 @section('js')
@@ -199,6 +227,96 @@
                         }
                     }
                 });       
+            });
+
+            $('#view-products-table').on('click', '.delete-product-btn', function (event) {
+                event.preventDefault();
+                let text = "Delete this Product?";
+                if (confirm(text) == true) {
+                    let id = this.id;
+                    let url = "{{ route('deleteProduct', ":getid") }}";
+                    url = url.replace(':getid', id );
+                    $.ajax({
+                        url: url,
+                        method:"GET",
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success:function(data)
+                        {
+                            if (data.status == 'success') 
+                            {
+                                swal("Success", "Product Deleted Successfully!", "success");
+                                location.reload();
+                            } 
+                            else 
+                            {
+                                swal("Error", data.response, "error");
+                                location.reload();
+                            }
+                        }
+                    });
+                } 
+            });
+
+            $('#view-products-table').on('click', '.edit-product-btn', function (event) {
+                $('#dynamic-div').html('');
+                $('#product_id').val('');
+                let id = this.id;
+                let url = "{{ route('editProduct', ":getid") }}";
+                url = url.replace(':getid', id );
+                $.ajax({
+                    url: url,
+                    method:"GET",
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success:function(data)
+                    {
+                        if (data.status == 'success') 
+                        {
+                            $('#product_id').val(id);
+                            $('#dynamic-div').html(data.html);
+                            $('#edit-product-modal').modal('show');
+                        } 
+                        else 
+                        {
+                            swal("Error", data.response, "error");
+                        }
+                    }
+                });
+            });
+
+            $('#product-update-form').on('submit', function(event){
+                event.preventDefault();
+                let id = $('#product_id').val();
+                let url = "{{ route('updateProduct', ":getid") }}";
+                url = url.replace(':getid', id );
+                $.ajax({
+                    url:url,
+                    method:"POST",
+                    data:new FormData(this),
+                    dataType:'JSON',
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success:function(data)
+                    {
+                        if (data.status == 'success') 
+                        {
+                            document.getElementById("product-update-form").reset();
+                            $(".validation").html("");  
+                            swal("Success", "Product Updated Successfully!", "success");
+                            location.reload();
+                        } 
+                        else 
+                        {
+                            $(".validation").html("");
+                            swal("Error", data.response, "error");
+                            location.reload();
+                        }
+                    }
+                });
             });
         });
     </script>

@@ -24,4 +24,7 @@ Route::get('/', 'HomeController@index')->name('home');
 Route::middleware(['auth'])->group(function () {
     Route::get('/product/get', 'HomeController@getProducts')->name('getProduct');
     Route::post('/product/store', 'HomeController@store')->name('storeProduct');
+    Route::get('/product/edit/{id}', 'HomeController@edit')->name('editProduct');
+    Route::post('/product/update/{id}', 'HomeController@update')->name('updateProduct');
+    Route::get('/product/delete/{id}', 'HomeController@destroy')->name('deleteProduct');
 });
